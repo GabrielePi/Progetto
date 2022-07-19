@@ -1,0 +1,165 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// definizione delle variabili che verranno utilizzate
+
+int i, numpartite, gcasa[10], gfuori[10], ckfissa[10], ckdoppia[10] ,ckuo25[10], esitofinale;
+char scasa[10][100],sospite[10][100],fissa[10][2], doppia [10][3], unov25 [10][9];
+
+
+int main()
+{
+    // Inserimento numero delle partite in bolletta
+    printf ("Inserisci il numero delle partite (MAX=10) ");
+    scanf ("%d", &numpartite);
+    if( numpartite > 10 )
+        {
+            printf("Troppe partite MAX=10");
+            exit(1);
+        }
+
+    // ----INSERIMENTO DELLA BOLLETTA----
+    printf ("----INSERIMENTO DELLA BOLLETTA---- \n");
+
+    for(i=0; i<=numpartite-1; i++)
+        {
+            printf ("Partita n. %d",i+1 );
+            printf("\n");
+            printf("---------------------------------------------- \n");
+            printf("Squadra di casa: ");
+            scanf ("%s", scasa[i]);
+            printf("\n");
+            printf("Squadra ospite: ");
+            scanf ("%s", sospite[i]);
+            printf("\n");
+            printf("Pronostico fisso 1 - X - 2: ");
+            scanf ("%s", fissa[i]);
+            printf("\n");
+            printf("Doppia chance 1X - X2 - 12: ");
+            scanf ("%s", doppia[i]);
+            printf("\n");
+            printf("Somma gol (UNDER - OVER): ");
+            scanf ("%s", unov25[i]);
+            printf("\n");
+        }
+
+    printf("-----RIEPOLOGO BOLLETTA----- \n");
+
+     for(i=0; i<=numpartite-1; i++)
+        {
+            printf (" %s", scasa[i]);
+            printf(" ");
+            printf("%s",sospite[i]);
+            printf(" FISSA: ");
+            printf("%s",fissa[i]);
+            printf(" DOPPIA CHANCE: ");
+            printf("%s",doppia[i]);
+            printf(" (UNDER-OVER 2,5): ");
+            printf("%s",unov25[i]);
+            printf("\n");
+        }
+
+    printf("-----INSERIMENTO RISULTATI DELLE PARTITE PER IL CONTROLLO DELLA BOLLETTA----- \n");
+    printf("-----INSERIRE I GOL FATTI DALLA SQUADRA DI CASA E QUELLI DELLA SQUADRA OSPITE SEPARATI DA UNO SPAZIO----- \n");
+
+    for(i=0; i<=numpartite-1; i++)
+        {
+            printf("%s %s ",scasa[i],sospite[i]);
+            scanf ("%d %d", &gcasa[i],&gfuori[i]);
+        }
+
+    for(i=0; i<=numpartite-1; i++)
+        {
+            printf("--------------------------------------------------------\n");
+            printf("%s %s %d %d\n ",scasa[i],sospite[i],gcasa[i],gfuori[i]);
+
+        }
+
+    //Inizializzazione delle variabili di controllo
+
+    for(i=0; i<=numpartite-1; i++)
+        {
+            ckfissa[i]=0;
+            ckdoppia[i]=0;
+            ckuo25[i]=0;
+        }
+
+    // Controllo pronostico fissa utilizzando la funzione strcmp() per confrontare ESATTAMENTE l'esito del risultato
+    // FISSO con il pronostico
+
+    for(i=0; i<=numpartite-1; i++)
+        {
+            if (gcasa[i]>gfuori[i]&&strcmp(fissa[i],"1")==0) {ckfissa[i]=1;}
+            if (gcasa[i]==gfuori[i]&&strcmp(fissa[i],"X")==0) {ckfissa[i]=1;}
+            if (gcasa[i]<gfuori[i]&&strcmp(fissa[i],"2")==0) {ckfissa[i]=1;}
+        }
+
+    // Controllo pronostico doppia utilizzando la funzione strtstr() per vrificare se il carattere dell'esito della FISSA
+    // è contenuto nella stringa del pronostico DOPPIA
+
+    for(i=0; i<=numpartite-1; i++)
+        {
+            if (gcasa[i]>gfuori[i]&&strstr(doppia[i],"1")!=0) {ckdoppia[i]=1;}
+            if (gcasa[i]==gfuori[i]&&strstr(doppia[i],"X")!=0) {ckdoppia[i]=1;}
+            if (gcasa[i]<gfuori[i]&&strstr(doppia[i],"2")!=0) {ckdoppia[i]=1;}
+        }
+
+    printf("\n");
+
+    // Controllo pronostico UNDER/OVER 2,5 utilizzando la funzione strcmp() per confrontare ESATTAMENTE l'esito del risultato
+    // UNDER o OVER con il pronostico
+
+    for(i=0; i<=numpartite-1; i++)
+        {
+            if (gcasa[i]+gfuori[i]>2.5&&strcmp(unov25[i],"OVER")==0) {ckuo25[i]=1;}
+            if (gcasa[i]+gfuori[i]<2.5&&strcmp(unov25[i],"UNDER")==0) {ckuo25[i]=1;}
+        }
+
+
+    // Calcolo esito finale la bolletta per definire vincente la bolletta occorre che il prodotto (and) di tutte
+    // le variabili di controllo sia uguale ad 1 (valore vero)
+
+    esitofinale=1;
+    for(i=0; i<=numpartite-1; i++)
+        {
+            esitofinale=esitofinale*ckfissa[i]*ckdoppia[i]*ckuo25[i];
+        }
+
+    for(i=0; i<=numpartite-1; i++)
+        {
+            printf("%s %d %s %d %s %d", fissa[i], ckfissa[i], doppia[i], ckdoppia[i],unov25[i],ckuo25[i]);
+            printf("\n");
+        }
+
+
+    printf("-----RIEPILO DEI RISULTATI DELLA GIOCATA----- \n");
+
+    for(i=0; i<=numpartite-1; i++)
+        {
+            printf (" %s", scasa[i]);
+            printf(" ");
+            printf("%s \n",sospite[i]);
+            printf("FISSA: ");
+            printf ("%s", fissa[i]);
+            if (ckfissa[i]==1) {printf(" VINCENTE \n");}
+            if (ckfissa[i]==0) {printf(" PERDENTE \n");}
+            printf("DOPPIA: ");
+            printf ("%s", doppia[i]);
+            if (ckdoppia[i]==1) {printf(" VINCENTE \n ");}
+            if (ckdoppia[i]==0) {printf(" PERDENTE \n");}
+            printf ("%s", unov25[i]);
+            if (ckuo25[i]==1) {printf(" VINCENTE \n ");}
+            if (ckuo25[i]==0) {printf(" PERDENTE \n");}
+            printf("\n");
+
+
+        }
+
+    if (esitofinale==1) {printf("BOLLETTA VINCENTE \n");}
+    if (esitofinale==0) {printf("BOLLETTA PERDENTE \n");}
+
+
+    return (0);
+
+}
